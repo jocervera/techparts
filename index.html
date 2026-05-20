@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechParts — Insumos y Reparación de Celulares</title>
+  <meta name="description" content="TechParts: tu tienda online de módulos, baterías, cables y repuestos para celulares. También ofrecemos servicio de reparación profesional. Samsung, Apple, Motorola, Xiaomi y más." />
+  <meta name="keywords" content="insumos celulares, módulos pantallas, baterías celular, reparación celulares, repuestos samsung, repuestos iphone" />
+  <meta name="author" content="TechParts" />
+  <meta property="og:title" content="TechParts — Insumos y Reparación de Celulares" />
+  <meta property="og:description" content="Módulos, baterías, cables y reparaciones profesionales de celulares." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     NAVBAR
+══════════════════════════════════ -->
+<nav id="navbar" role="navigation" aria-label="Navegación principal">
+  <div class="container nav-inner">
+    <a href="#hero" class="nav-logo" id="nav-logo">
+      <div class="logo-icon" aria-hidden="true">⚡</div>
+      Tech<span>Parts</span>
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#products" class="nav-link">Productos</a></li>
+      <li><a href="#services" class="nav-link">Reparaciones</a></li>
+      <li><a href="#brands" class="nav-link">Marcas</a></li>
+      <li><a href="#testimonials" class="nav-link">Reseñas</a></li>
+      <li><a href="#contact" class="nav-link">Contacto</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button id="cart-btn" aria-label="Abrir carrito de compras">
+        🛒
+        <span id="cart-count" aria-live="polite" aria-label="Productos en carrito">0</span>
+      </button>
+      <button id="hamburger" class="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div id="mobile-nav" role="dialog" aria-label="Menú móvil">
+  <ul>
+    <li><a href="#products">📦 Productos</a></li>
+    <li><a href="#services">🔧 Reparaciones</a></li>
+    <li><a href="#brands">📱 Marcas</a></li>
+    <li><a href="#testimonials">💬 Reseñas</a></li>
+    <li><a href="#contact">📝 Contacto</a></li>
+  </ul>
+</div>
+
+
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
+<section id="hero" aria-label="Inicio">
+  <div class="hero-bg" style="background-image:url('assets/hero-bg.jpg')" aria-hidden="true"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="hero-particles" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot" aria-hidden="true"></span>
+        Envíos a todo el país · Garantía en todos los productos
+      </div>
+
+      <h1 class="hero-title">
+        Tu celular,<br>
+        <span class="gradient-text">como nuevo.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Insumos y repuestos originales para todas las marcas. 
+        Módulos, baterías, cables y servicio técnico profesional.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#products" class="btn btn-primary" id="hero-cta-products">
+          📦 Ver Productos
+        </a>
+        <a href="#services" class="btn btn-outline" id="hero-cta-services">
+          🔧 Solicitar Reparación
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="number" data-count="500" data-suffix="+">0+</span>
+          <span class="label">Productos</span>
+        </div>
+        <div class="hero-stat">
+          <span class="number" data-count="2400" data-suffix="+">0+</span>
+          <span class="label">Clientes</span>
+        </div>
+        <div class="hero-stat">
+          <span class="number" data-count="98" data-suffix="%">0%</span>
+          <span class="label">Satisfacción</span>
+        </div>
+        <div class="hero-stat">
+          <span class="number" data-count="5" data-suffix="★">0★</span>
+          <span class="label">Calificación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <div class="scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PRODUCTS
+══════════════════════════════════ -->
+<section id="products" aria-label="Catálogo de productos">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Catálogo</span>
+      <h2 class="section-title">Nuestros <span>Productos</span></h2>
+      <p class="section-subtitle">Repuestos y accesorios originales para las marcas más populares. Calidad garantizada.</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters" role="group" aria-label="Filtrar por categoría">
+      <button class="filter-btn active" data-filter="all" id="filter-all">Todos</button>
+      <button class="filter-btn" data-filter="modulos" id="filter-modulos">📱 Módulos</button>
+      <button class="filter-btn" data-filter="baterias" id="filter-baterias">🔋 Baterías</button>
+      <button class="filter-btn" data-filter="cables" id="filter-cables">⚡ Cables</button>
+      <button class="filter-btn" data-filter="repuestos" id="filter-repuestos">🔩 Repuestos</button>
+      <button class="filter-btn" data-filter="accesorios" id="filter-accesorios">🎧 Accesorios</button>
+    </div>
+
+    <div id="products-grid" class="products-grid" role="list" aria-label="Lista de productos"></div>
+    <div id="products-empty" class="products-empty">
+      <p style="font-size:2rem;margin-bottom:12px">🔍</p>
+      <p>No hay productos en esta categoría.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SERVICES
+══════════════════════════════════ -->
+<section id="services" aria-label="Servicios de reparación">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Servicio Técnico</span>
+      <h2 class="section-title">Reparaciones <span>Profesionales</span></h2>
+      <p class="section-subtitle">Técnicos certificados con años de experiencia. Garantía en todos los trabajos realizados.</p>
+    </div>
+    <div id="services-grid" class="services-grid"></div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     BRANDS
+══════════════════════════════════ -->
+<section id="brands" aria-label="Marcas compatibles">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Compatibilidad</span>
+      <h2 class="section-title">Trabajamos con todas las <span>Marcas</span></h2>
+      <p class="section-subtitle">Contamos con repuestos compatibles con los fabricantes más populares del mercado.</p>
+    </div>
+  </div>
+  <div class="brands-track-wrap" aria-hidden="true">
+    <div id="brands-track" class="brands-track"></div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════ -->
+<section id="testimonials" aria-label="Reseñas de clientes">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Testimonios</span>
+      <h2 class="section-title">Lo que dicen nuestros <span>Clientes</span></h2>
+      <p class="section-subtitle">Más de 2.400 clientes satisfechos nos respaldan. ¡Tu celular en buenas manos!</p>
+    </div>
+    <div id="testimonials-grid" class="testimonials-grid"></div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONTACT
+══════════════════════════════════ -->
+<section id="contact" aria-label="Contacto">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Contacto</span>
+      <h2 class="section-title">¿Necesitás <span>Ayuda</span>?</h2>
+      <p class="section-subtitle">Consultanos por productos, precios o solicita turno para reparación. Respondemos rápido.</p>
+    </div>
+
+    <div class="contact-layout">
+      <!-- Info lateral -->
+      <div class="contact-info reveal">
+        <h3>Estamos para ayudarte</h3>
+        <p>Encontranos en nuestra tienda o contactanos por los medios que prefieras. También respondemos por WhatsApp.</p>
+
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="contact-item-icon">📍</div>
+            <div class="contact-item-text">
+              <div class="label">Dirección</div>
+              <div class="value">Av. Corrientes 1234, Buenos Aires</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">🕐</div>
+            <div class="contact-item-text">
+              <div class="label">Horario</div>
+              <div class="value">Lun–Vie: 9:00–19:00 · Sáb: 9:00–14:00</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">📞</div>
+            <div class="contact-item-text">
+              <div class="label">Teléfono / WhatsApp</div>
+              <div class="value">+54 9 11 1234-5678</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-item-icon">📧</div>
+            <div class="contact-item-text">
+              <div class="label">Email</div>
+              <div class="value">info@techparts.com.ar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="form-card reveal">
+        <!-- Tabs -->
+        <div class="form-tabs" role="tablist">
+          <button class="form-tab active" data-tab="contact" role="tab" aria-selected="true" id="tab-contact">
+            💬 Consulta General
+          </button>
+          <button class="form-tab" data-tab="repair" role="tab" aria-selected="false" id="tab-repair">
+            🔧 Solicitar Reparación
+          </button>
+        </div>
+
+        <!-- Panel: Consulta -->
+        <div class="form-panel active" id="panel-contact" role="tabpanel" aria-labelledby="tab-contact">
+          <form id="form-contact" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="contact-name">Nombre completo</label>
+                <input type="text" id="contact-name" class="form-control" placeholder="Juan García" required>
+              </div>
+              <div class="form-group">
+                <label for="contact-email">Email</label>
+                <input type="email" id="contact-email" class="form-control" placeholder="juan@email.com" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="contact-subject">Asunto</label>
+              <input type="text" id="contact-subject" class="form-control" placeholder="¿En qué te podemos ayudar?" required>
+            </div>
+            <div class="form-group">
+              <label for="contact-message">Mensaje</label>
+              <textarea id="contact-message" class="form-control" placeholder="Escribí tu consulta aquí..." required></textarea>
+            </div>
+            <button type="submit" class="form-submit" id="submit-contact">Enviar Consulta ✉️</button>
+          </form>
+          <div class="form-success" id="success-contact">
+            <div class="check">✅</div>
+            <h4>¡Consulta enviada!</h4>
+            <p>Te respondemos dentro de las próximas 24 horas hábiles.</p>
+          </div>
+        </div>
+
+        <!-- Panel: Reparación -->
+        <div class="form-panel" id="panel-repair" role="tabpanel" aria-labelledby="tab-repair">
+          <form id="form-repair" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="repair-name">Nombre completo</label>
+                <input type="text" id="repair-name" class="form-control" placeholder="Juan García" required>
+              </div>
+              <div class="form-group">
+                <label for="repair-phone">Teléfono / WhatsApp</label>
+                <input type="tel" id="repair-phone" class="form-control" placeholder="+54 9 11 ..." required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="repair-brand">Marca del celular</label>
+                <select id="repair-brand" class="form-control" required>
+                  <option value="" disabled selected>Seleccioná la marca</option>
+                  <option>Samsung</option>
+                  <option>Apple / iPhone</option>
+                  <option>Motorola</option>
+                  <option>Xiaomi</option>
+                  <option>LG</option>
+                  <option>Huawei</option>
+                  <option>Nokia</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="repair-model">Modelo</label>
+                <input type="text" id="repair-model" class="form-control" placeholder="Ej: Samsung A51" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="repair-service">Tipo de reparación</label>
+              <select id="repair-service" class="form-control" required>
+                <option value="" disabled selected>¿Qué necesitás reparar?</option>
+                <option>Cambio de pantalla / módulo</option>
+                <option>Cambio de batería</option>
+                <option>Reparación puerto de carga</option>
+                <option>Recuperación de datos</option>
+                <option>Reparación de cámara</option>
+                <option>Liberación de equipo</option>
+                <option>Otro problema</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="repair-description">Descripción del problema</label>
+              <textarea id="repair-description" class="form-control" placeholder="Contanos con más detalle qué le pasa a tu celular..." required></textarea>
+            </div>
+            <button type="submit" class="form-submit" id="submit-repair">Solicitar Turno 🔧</button>
+          </form>
+          <div class="form-success" id="success-repair">
+            <div class="check">✅</div>
+            <h4>¡Turno solicitado!</h4>
+            <p>Te contactamos a la brevedad para confirmar fecha y horario. ¡Gracias!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CART DRAWER
+══════════════════════════════════ -->
+<div id="cart-overlay" role="presentation" aria-hidden="true"></div>
+<aside id="cart-drawer" role="dialog" aria-label="Carrito de compras" aria-modal="true">
+  <div class="cart-header">
+    <h2 class="cart-title">🛒 Mi Carrito</h2>
+    <button class="cart-close" id="cart-close" aria-label="Cerrar carrito">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-val" id="cart-total-val"><sup>$</sup>0</span>
+    </div>
+    <button class="cart-checkout-btn" id="cart-checkout">
+      💚 Finalizar por WhatsApp
+    </button>
+    <button class="cart-clear-btn" id="cart-clear">Vaciar carrito</button>
+  </div>
+</aside>
+
+
+<!-- ══════════════════════════════════
+     WHATSAPP BTN
+══════════════════════════════════ -->
+<a
+  id="whatsapp-btn"
+  href="https://wa.me/5491112345678?text=Hola!%20Vi%20su%20p%C3%A1gina%20y%20quisiera%20consultar."
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Contactar por WhatsApp"
+  title="Contactar por WhatsApp"
+>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+  </svg>
+</a>
+
+<!-- Toast container -->
+<div id="toast-container" aria-live="polite" aria-label="Notificaciones"></div>
+
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <div class="logo-icon" aria-hidden="true">⚡</div>
+          Tech<span>Parts</span>
+        </div>
+        <p>Tu tienda de confianza para insumos y reparaciones de celulares. Calidad garantizada en todos nuestros productos y servicios.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Productos</h4>
+        <ul>
+          <li><a href="#products" onclick="document.querySelector('[data-filter=modulos]').click()">Módulos y Pantallas</a></li>
+          <li><a href="#products" onclick="document.querySelector('[data-filter=baterias]').click()">Baterías</a></li>
+          <li><a href="#products" onclick="document.querySelector('[data-filter=cables]').click()">Cables y Flex</a></li>
+          <li><a href="#products" onclick="document.querySelector('[data-filter=repuestos]').click()">Repuestos</a></li>
+          <li><a href="#products" onclick="document.querySelector('[data-filter=accesorios]').click()">Accesorios</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#services">Cambio de Pantalla</a></li>
+          <li><a href="#services">Cambio de Batería</a></li>
+          <li><a href="#services">Puerto de Carga</a></li>
+          <li><a href="#services">Recuperación de Datos</a></li>
+          <li><a href="#services">Liberación de Equipos</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Información</h4>
+        <ul>
+          <li><a href="#contact">Contacto</a></li>
+          <li><a href="#contact">Solicitar Turno</a></li>
+          <li><a href="#brands">Marcas Compatibles</a></li>
+          <li><a href="#testimonials">Reseñas</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 <span class="accent">TechParts</span>. Todos los derechos reservados.</p>
+      <p>Hecho con ❤️ para nuestros clientes</p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- Scripts -->
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
