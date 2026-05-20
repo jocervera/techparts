@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initMobileNav();
   initFilters();
-  renderProducts('all');
+  
+  // Carga dinámica de productos desde Firestore con auto-semillado
+  loadProductsFromFirestore();
+  
   renderServices();
   renderBrands();
   renderTestimonials();
@@ -140,7 +143,8 @@ function renderProducts(filter) {
 
   // Fix: re-bind click correctly
   grid.querySelectorAll('.add-to-cart-btn:not([disabled])').forEach(btn => {
-    const id = parseInt(btn.id.replace('prod-btn-', ''));
+    const idRaw = btn.id.replace('prod-btn-', '');
+    const id = isNaN(idRaw) ? idRaw : parseInt(idRaw);
     const product = products.find(p => p.id === id);
     if (product) {
       btn.onclick = () => {
@@ -229,22 +233,98 @@ function initContactForm() {
     });
   });
 
-  // Submit handlers
-  ['form-contact', 'form-repair'].forEach(formId => {
-    const form = document.getElementById(formId);
-    if (!form) return;
-    form.addEventListener('submit', (e) => {
+  // Submit handlers con persistencia en Firestore
+  const formContact = document.getElementById('form-contact');
+  if (formContact) {
+    formContact.addEventListener('submit', (e) => {
       e.preventDefault();
-      const btn = form.querySelector('.form-submit');
+      const btn = formContact.querySelector('.form-submit');
       btn.textContent = 'Enviando...';
       btn.disabled = true;
-      setTimeout(() => {
-        form.style.display = 'none';
-        const success = document.getElementById(`success-${formId.replace('form-', '')}`);
-        if (success) success.classList.add('visible');
-      }, 1200);
+
+      const name = document.getElementById('contact-name').value;
+      const email = document.getElementById('contact-email').value;
+      const subject = document.getElementById('contact-subject').value;
+      const message = document.getElementById('contact-message').value;
+
+      if (typeof db !== 'undefined') {
+        db.collection("techparts_consultas").add({
+          name: name,
+          email: email,
+          subject: subject,
+          message: message,
+          date: new Date().toISOString(),
+          status: "Pendiente"
+        })
+        .then(() => {
+          formContact.style.display = 'none';
+          const success = document.getElementById('success-contact');
+          if (success) success.classList.add('visible');
+        })
+        .catch((error) => {
+          console.error("Error al enviar consulta a Firestore:", error);
+          alert("Hubo un error al enviar tu consulta. Por favor, intenta de nuevo.");
+          btn.textContent = 'Enviar Consulta ✉️';
+          btn.disabled = false;
+        });
+      } else {
+        // Fallback local en caso de desconexión
+        setTimeout(() => {
+          formContact.style.display = 'none';
+          const success = document.getElementById('success-contact');
+          if (success) success.classList.add('visible');
+        }, 1000);
+      }
     });
-  });
+  }
+
+  const formRepair = document.getElementById('form-repair');
+  if (formRepair) {
+    formRepair.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = formRepair.querySelector('.form-submit');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      const name = document.getElementById('repair-name').value;
+      const phone = document.getElementById('repair-phone').value;
+      const brand = document.getElementById('repair-brand').value;
+      const model = document.getElementById('repair-model').value;
+      const service = document.getElementById('repair-service').value;
+      const description = document.getElementById('repair-description').value;
+
+      if (typeof db !== 'undefined') {
+        db.collection("techparts_turnos").add({
+          name: name,
+          phone: phone,
+          brand: brand,
+          model: model,
+          service: service,
+          description: description,
+          date: new Date().toISOString(),
+          status: "Pendiente"
+        })
+        .then(() => {
+          formRepair.style.display = 'none';
+          const success = document.getElementById('success-repair');
+          if (success) success.classList.add('visible');
+        })
+        .catch((error) => {
+          console.error("Error al solicitar turno en Firestore:", error);
+          alert("Hubo un error al solicitar tu turno. Por favor, intenta de nuevo.");
+          btn.textContent = 'Solicitar Turno 🔧';
+          btn.disabled = false;
+        });
+      } else {
+        // Fallback local en caso de desconexión
+        setTimeout(() => {
+          formRepair.style.display = 'none';
+          const success = document.getElementById('success-repair');
+          if (success) success.classList.add('visible');
+        }, 1000);
+      }
+    });
+  }
 }
 
 function scrollToContact(tab) {
@@ -270,7 +350,54 @@ function initReveal() {
   document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
 }
 
-// ─── ANIMATED COUNTERS ────────────────────
+// ─── CARGA DINÁMICA DESDE FIRESTORE ────────────────
+function loadProductsFromFirestore() {
+  if (typeof db !== 'undefined') {
+    db.collection("techparts_productos").onSnapshot((snapshot) => {
+      const dbProducts = [];
+      snapshot.forEach((doc) => {
+        dbProducts.push({ ...doc.data(), id: doc.id });
+      });
+
+      if (dbProducts.length === 0) {
+        console.log("⚙️ Colección de productos vacía en Firestore. Realizando semillado automático...");
+        const batch = db.batch();
+        products.forEach((p) => {
+          const docRef = db.collection("techparts_productos").doc(p.id.toString());
+          batch.set(docRef, {
+            name: p.name,
+            category: p.category,
+            price: p.price,
+            brand: p.brand,
+            image: p.image,
+            badge: p.badge || "",
+            description: p.description || "",
+            stock: p.stock !== undefined ? p.stock : true
+          });
+        });
+        batch.commit()
+          .then(() => console.log("✅ Catálogo inicial de productos semillado en Firestore."))
+          .catch((err) => console.error("❌ Error al semillar catálogo en Firestore:", err));
+      } else {
+        const formattedProducts = dbProducts.map(p => ({
+          ...p,
+          id: isNaN(p.id) ? p.id : parseInt(p.id)
+        }));
+        
+        products.length = 0;
+        products.push(...formattedProducts);
+        console.log(`⚡ ${products.length} productos cargados desde Firestore.`);
+        renderProducts(currentFilter || 'all');
+      }
+    }, (error) => {
+      console.error("❌ Error en escucha de Firestore, usando catálogo estático:", error);
+      renderProducts(currentFilter || 'all');
+    });
+  } else {
+    console.warn("⚠️ Firebase db no disponible. Usando catálogo estático.");
+    renderProducts(currentFilter || 'all');
+  }
+}
 function initCounters() {
   const counters = document.querySelectorAll('[data-count]');
   if (!counters.length) return;
