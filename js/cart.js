@@ -124,13 +124,15 @@ const Cart = (() => {
     if (totalEl) totalEl.innerHTML = `<sup>$</sup>${formatPrice(total())}`;
   }
 
-  function buildWhatsAppMessage() {
+  function buildWhatsAppMessage(orderId, clientName) {
     if (items.length === 0) return '';
-    let msg = '🛒 *Pedido FabiTech Solutions*\n\n';
+    let msg = `🛒 *Pedido FabiTech Solutions*\n`;
+    msg += `📝 *Pedido:* #${orderId}\n`;
+    msg += `👤 *Cliente:* ${clientName}\n\n`;
     items.forEach(item => {
       msg += `• ${item.name} x${item.qty} = $${formatPrice(item.price * item.qty)}\n`;
     });
-    msg += `\n💰 *Total: $${formatPrice(total())}*\n\nQuisiera hacer un pedido.`;
+    msg += `\n💰 *Total: $${formatPrice(total())}*\n\nQuisiera finalizar este pedido.`;
     return encodeURIComponent(msg);
   }
 
@@ -166,9 +168,47 @@ const Cart = (() => {
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', () => {
         if (items.length === 0) return;
-        const WHATSAPP_NUMBER = '5491138621658'; // ← Cambiar por número real
-        const msg = buildWhatsAppMessage();
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+
+        const clientName = prompt("Ingresá tu nombre para el pedido por WhatsApp:");
+        if (clientName === null) return; // Se canceló la operación
+        const nameToUse = clientName.trim() || "Cliente";
+
+        const orderId = 'FT-' + Math.floor(1000 + Math.random() * 9000);
+        const WHATSAPP_NUMBER = '5491138621658'; // ← Número real del negocio
+
+        if (typeof db !== 'undefined') {
+          db.collection("techparts_pedidos").add({
+            orderId: orderId,
+            clientName: nameToUse,
+            date: new Date().toISOString(),
+            items: items.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              qty: item.qty,
+              image: item.image
+            })),
+            total: total(),
+            status: "Pendiente"
+          })
+          .then(() => {
+            const msg = buildWhatsAppMessage(orderId, nameToUse);
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+            clear();
+            closeDrawer();
+            showToast("🛒 ¡Pedido registrado! Redirigiendo a WhatsApp...");
+          })
+          .catch(error => {
+            console.error("Error al registrar pedido en Firestore:", error);
+            showToast("❌ Error al registrar el pedido.");
+          });
+        } else {
+          // Fallback local en caso de desconexión
+          const msg = buildWhatsAppMessage(orderId, nameToUse);
+          window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+          clear();
+          closeDrawer();
+        }
       });
     }
   }
