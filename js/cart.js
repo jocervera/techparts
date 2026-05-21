@@ -176,6 +176,26 @@ const Cart = (() => {
         const orderId = 'FT-' + Math.floor(1000 + Math.random() * 9000);
         const WHATSAPP_NUMBER = '5491138621658'; // ← Número real del negocio
 
+        // Abrir la pestaña ANTES de la llamada asíncrona de Firestore para evitar el bloqueo del navegador
+        const newWindow = window.open("", "_blank");
+        if (newWindow) {
+          newWindow.document.title = "Cargando WhatsApp...";
+          newWindow.document.body.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#121212; color:#fff; text-align:center; padding: 20px;">
+              <div style="font-size:3rem; margin-bottom:1.5rem; animation: pulse 1.5s infinite ease-in-out;">💬</div>
+              <h2 style="margin:0 0 10px 0; font-weight:600;">Procesando tu pedido...</h2>
+              <p style="color:#aaa; margin:0; font-size:0.9rem;">Registrando en FabiTech Solutions y abriendo WhatsApp en segundos.</p>
+              <style>
+                @keyframes pulse {
+                  0% { transform: scale(1); opacity: 0.6; }
+                  50% { transform: scale(1.15); opacity: 1; }
+                  100% { transform: scale(1); opacity: 0.6; }
+                }
+              </style>
+            </div>
+          `;
+        }
+
         if (typeof db !== 'undefined') {
           db.collection("techparts_pedidos").add({
             orderId: orderId,
@@ -193,19 +213,30 @@ const Cart = (() => {
           })
           .then(() => {
             const msg = buildWhatsAppMessage(orderId, nameToUse);
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+            if (newWindow) {
+              newWindow.location.href = waUrl;
+            } else {
+              window.open(waUrl, '_blank');
+            }
             clear();
             closeDrawer();
             showToast("🛒 ¡Pedido registrado! Redirigiendo a WhatsApp...");
           })
           .catch(error => {
             console.error("Error al registrar pedido en Firestore:", error);
+            if (newWindow) newWindow.close();
             showToast("❌ Error al registrar el pedido.");
           });
         } else {
           // Fallback local en caso de desconexión
           const msg = buildWhatsAppMessage(orderId, nameToUse);
-          window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+          const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+          if (newWindow) {
+            newWindow.location.href = waUrl;
+          } else {
+            window.open(waUrl, '_blank');
+          }
           clear();
           closeDrawer();
         }
