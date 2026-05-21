@@ -38,9 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') attemptLogin();
     });
   }
-
-  // Ejecutar verificación de sesión inicial
-  checkSession();
+  // (La verificación de sesión se movió al final del archivo para evitar errores de inicialización/TDZ)
 
   // ============================================
   // 2. INICIALIZACIÓN GENERAL DEL PANEL
@@ -959,4 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 300);
     }, 3500);
   }
+
+  // Ejecutar verificación de sesión inicial al final, una vez declaradas todas las variables
+  checkSession();
 });
