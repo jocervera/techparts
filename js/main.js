@@ -360,7 +360,12 @@ function loadProductsFromFirestore() {
       });
 
       if (dbProducts.length === 0) {
-        console.log("⚙️ Colección de productos vacía en Firestore. Realizando semillado automático...");
+        console.log("⚙️ Colección de productos vacía en Firestore. Mostrando catálogo estático...");
+        // Renderizar productos estáticos inmediatamente para que no quede vacío
+        renderProducts(currentFilter || 'all');
+
+        // Intentar semillar en segundo plano
+        console.log("⚙️ Intentando semillado automático en Firestore...");
         const batch = db.batch();
         products.forEach((p) => {
           const docRef = db.collection("techparts_productos").doc(p.id.toString());
@@ -377,7 +382,9 @@ function loadProductsFromFirestore() {
         });
         batch.commit()
           .then(() => console.log("✅ Catálogo inicial de productos semillado en Firestore."))
-          .catch((err) => console.error("❌ Error al semillar catálogo en Firestore:", err));
+          .catch((err) => {
+            console.warn("⚠️ No se pudo semillar en Firestore, usando catálogo estático:", err);
+          });
       } else {
         const formattedProducts = dbProducts.map(p => ({
           ...p,
