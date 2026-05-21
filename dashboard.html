@@ -470,6 +470,78 @@
       border: 1px solid rgba(0, 255, 136, 0.3);
     }
 
+    .status-Vendido {
+      background: rgba(124, 58, 237, 0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+    }
+
+    /* MODAL DE VENTA */
+    .venta-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 1050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .venta-backdrop.open { display: flex; }
+
+    .venta-modal {
+      background: #111827;
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      border-radius: 20px;
+      box-shadow: 0 0 60px rgba(124, 58, 237, 0.25);
+      width: 100%;
+      max-width: 480px;
+      padding: 32px;
+      animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalIn {
+      from { transform: scale(0.9) translateY(20px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .venta-modal h3 {
+      font-family: var(--font-outfit);
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+      color: #a78bfa;
+    }
+
+    .venta-modal p.subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .venta-modal .form-group {
+      margin-bottom: 16px;
+    }
+
+    .venta-modal .venta-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-vendido {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      border: none;
+      color: #fff;
+      padding: 11px 24px;
+      border-radius: 30px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .btn-vendido:hover { opacity: 0.85; }
+
     /* BOTONES Y ACCIONES */
     .action-group {
       display: flex;
@@ -1002,9 +1074,34 @@
       </div>
 
     </div>
+  <!-- MODAL DE REGISTRO DE VENTA -->
+  <div class="venta-backdrop" id="venta-backdrop">
+    <div class="venta-modal">
+      <h3>💜 Registrar Venta</h3>
+      <p class="subtitle">Elegí el producto vendido y la cantidad para descontar del stock automáticamente.</p>
+
+      <div class="form-group">
+        <label for="venta-producto">Producto vendido</label>
+        <select id="venta-producto" required>
+          <option value="">-- Seleccionar producto --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="venta-cantidad">Cantidad vendida</label>
+        <input type="number" id="venta-cantidad" min="1" value="1" required>
+      </div>
+
+      <div id="venta-stock-info" style="font-size:0.82rem; color:var(--text-muted); margin-top:-8px; margin-bottom:4px;"></div>
+
+      <div class="venta-footer">
+        <button class="btn-secondary" id="btn-cancelar-venta">Cancelar</button>
+        <button class="btn-vendido" id="btn-confirmar-venta">✓ Confirmar Venta</button>
+      </div>
+    </div>
   </div>
 
-  <!-- BACKDROP PARA FORMULARIO OVERLAY -->
+  </div><!-- /dashboard-main-content -->
   <div class="form-backdrop" id="form-backdrop"></div>
 
   <!-- FORMULARIO OVERLAY (NUEVO/EDITAR PRODUCTO) -->
