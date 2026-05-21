@@ -117,12 +117,15 @@ function renderProducts(filter) {
   }
   empty && empty.classList.remove('visible');
 
-  grid.innerHTML = filtered.map(p => `
-    <div class="product-card reveal${!p.stock ? ' out-of-stock' : ''}">
+  grid.innerHTML = filtered.map(p => {
+    const stockCount = typeof p.stock === 'boolean' ? (p.stock ? 10 : 0) : (parseInt(p.stock) || 0);
+    const inStock = stockCount > 0;
+    return `
+    <div class="product-card reveal${!inStock ? ' out-of-stock' : ''}">
       <div class="product-img-wrap">
         <img src="${p.image}" alt="${p.name}" onerror="this.src='assets/placeholder.jpg'" loading="lazy">
         ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}
-        ${!p.stock ? `<div class="out-of-stock-overlay">SIN STOCK</div>` : ''}
+        ${!inStock ? `<div class="out-of-stock-overlay">SIN STOCK</div>` : ''}
       </div>
       <div class="product-body">
         <div class="product-brand">${p.brand}</div>
@@ -133,13 +136,13 @@ function renderProducts(filter) {
           <button
             class="add-to-cart-btn"
             onclick="Cart.add(${JSON.stringify(JSON.stringify(p))})"
-            ${!p.stock ? 'disabled' : ''}
+            ${!inStock ? 'disabled' : ''}
             id="prod-btn-${p.id}"
-          >${p.stock ? '+ Carrito' : 'Sin stock'}</button>
+          >${inStock ? '+ Carrito' : 'Sin stock'}</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 
   // Fix: re-bind click correctly
   grid.querySelectorAll('.add-to-cart-btn:not([disabled])').forEach(btn => {
@@ -377,7 +380,7 @@ function loadProductsFromFirestore() {
             image: p.image,
             badge: p.badge || "",
             description: p.description || "",
-            stock: p.stock !== undefined ? p.stock : true
+            stock: typeof p.stock === 'boolean' ? (p.stock ? 10 : 0) : (p.stock !== undefined ? p.stock : 10)
           });
         });
         batch.commit()
