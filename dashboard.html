@@ -476,6 +476,12 @@
       border: 1px solid rgba(124, 58, 237, 0.4);
     }
 
+    .status-Cancelado {
+      background: rgba(255, 62, 108, 0.1);
+      color: var(--accent-red);
+      border: 1px solid rgba(255, 62, 108, 0.3);
+    }
+
     /* MODAL DE VENTA */
     .venta-backdrop {
       position: fixed;
@@ -975,8 +981,15 @@
         <div class="card">
           <div class="card-icon green">📦</div>
           <div class="card-info">
-            <h3>Productos en Venta</h3>
+            <h3>Productos</h3>
             <div class="value" id="total-products-count">0</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon orange" style="background: rgba(255, 159, 67, 0.1); color: var(--accent-orange); border: 1px solid rgba(255, 159, 67, 0.2);">🛒</div>
+          <div class="card-info">
+            <h3>Pedidos Web</h3>
+            <div class="value" id="total-orders-count">0</div>
           </div>
         </div>
       </div>
@@ -986,6 +999,7 @@
         <div class="dashboard-tabs">
           <button class="tab-btn active" data-tab="turnos">Turnos de Reparación</button>
           <button class="tab-btn" data-tab="consultas">Consultas Recibidas</button>
+          <button class="tab-btn" data-tab="pedidos">Pedidos de Carrito <span id="pending-orders-badge" style="background:var(--accent-red); color:var(--text-white); font-size:0.72rem; padding: 2px 7px; border-radius:10px; margin-left: 5px; display:none; font-weight:700;">0</span></button>
           <button class="tab-btn" data-tab="productos">Gestión de Catálogo</button>
         </div>
       </div>
@@ -1038,6 +1052,33 @@
             <tbody id="inquiries-table-body">
               <tr>
                 <td colspan="7" class="empty-state">Cargando consultas desde el servidor...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PESTAÑA: PEDIDOS DE CARRITO -->
+      <div id="tab-pedidos" class="dashboard-tab-content" style="display: none;">
+        <div class="table-section-header">
+          <h2>Pedidos Recibidos desde la Web</h2>
+        </div>
+        <div class="table-container">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>ID Pedido</th>
+                <th>Cliente</th>
+                <th>Detalle de Productos</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <tr>
+                <td colspan="7" class="empty-state">Cargando pedidos desde el servidor...</td>
               </tr>
             </tbody>
           </table>
