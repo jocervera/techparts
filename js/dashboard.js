@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Iniciar escuchas en tiempo real
     startTurnosListener();
     startConsultasListener();
+    startPedidosListener();
     startProductosListener();
   }
 
@@ -363,6 +364,121 @@ document.addEventListener('DOMContentLoaded', () => {
     bindDeleteButtons();
   }
 
+  // D. ESCUCHA DE PEDIDOS DE CARRITO
+  let unsubscribePedidos = null;
+  function startPedidosListener() {
+    if (unsubscribePedidos) unsubscribePedidos();
+
+    if (typeof db !== 'undefined') {
+      unsubscribePedidos = db.collection("techparts_pedidos").orderBy("date", "desc")
+        .onSnapshot((snapshot) => {
+          const pedidos = [];
+          snapshot.forEach((doc) => {
+            pedidos.push({ ...doc.data(), id: doc.id });
+          });
+          renderPedidos(pedidos);
+        }, (error) => {
+          console.error("Error al escuchar pedidos:", error);
+        });
+    }
+  }
+
+  function renderPedidos(pedidos) {
+    const totalOrdersEl = document.getElementById('total-orders-count');
+    const tableBody = document.getElementById('orders-table-body');
+    const pendingBadge = document.getElementById('pending-orders-badge');
+
+    // Count pending orders
+    const pendingOrders = pedidos.filter(p => (p.status || 'Pendiente') === 'Pendiente');
+    
+    if (totalOrdersEl) totalOrdersEl.textContent = pendingOrders.length;
+    if (pendingBadge) {
+      if (pendingOrders.length > 0) {
+        pendingBadge.textContent = pendingOrders.length;
+        pendingBadge.style.display = 'inline-block';
+      } else {
+        pendingBadge.style.display = 'none';
+      }
+    }
+
+    if (!tableBody) return;
+
+    if (pedidos.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty-state">No hay pedidos registrados en la base de datos.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = pedidos.map(p => {
+      const date = new Date(p.date);
+      const formattedDate = date.toLocaleDateString('es-AR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+
+      const currentStatus = p.status || 'Pendiente';
+      const statusClass = `status-${currentStatus}`;
+      const statusIcon = currentStatus === 'Vendido' ? '💜 ' : currentStatus === 'Cancelado' ? '❌ ' : '🛒 ';
+
+      // Format items list in a neat way
+      const itemsListHtml = (p.items || []).map(item => {
+        return `<div style="font-size:0.85rem; line-height: 1.4; margin-bottom: 4px;">
+          <span style="color:var(--accent-cyan); font-weight:600;">${item.qty}x</span> ${item.name} 
+          <span style="color:var(--text-muted); font-size:0.75rem;">($${parseFloat(item.price).toLocaleString('es-AR')})</span>
+        </div>`;
+      }).join('');
+
+      // Actions buttons
+      let actionsHtml = '';
+      if (currentStatus === 'Pendiente') {
+        actionsHtml = `
+          <button class="btn-primary" style="padding: 6px 12px; font-size:0.8rem; font-family:var(--font-inter); background: linear-gradient(135deg, #7c3aed, #a78bfa); color:#fff; display:inline-flex;" onclick="changePedidoStatus('${p.id}', 'Vendido')" title="Marcar como Vendido y descontar stock">✅ Vendido</button>
+          <button class="btn-secondary" style="padding: 6px 12px; font-size:0.8rem;" onclick="changePedidoStatus('${p.id}', 'Cancelado')" title="Cancelar Pedido">❌ Cancelar</button>
+        `;
+      } else {
+        actionsHtml = `<span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Sin acciones</span>`;
+      }
+
+      return `
+        <tr data-id="${p.id}">
+          <td style="font-weight: 700; color: var(--accent-cyan); font-family: var(--font-outfit); font-size: 0.95rem;">
+            #${p.orderId || p.id.substring(0, 7)}
+          </td>
+          <td>
+            <div class="customer-info">
+              <span class="customer-name">${p.clientName || 'Cliente Web'}</span>
+            </div>
+          </td>
+          <td>
+            <div style="max-height: 120px; overflow-y: auto; padding-right: 5px;">
+              ${itemsListHtml}
+            </div>
+          </td>
+          <td style="font-weight: 700; color: var(--accent-green); font-size: 1.05rem;">
+            $${parseFloat(p.total).toLocaleString('es-AR', { minimumFractionDigits: 0 })}
+          </td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${formattedDate}</td>
+          <td>
+            <span class="status-badge ${statusClass}" title="Estado del pedido">
+              ${statusIcon}${currentStatus}
+            </span>
+          </td>
+          <td>
+            <div class="action-group" style="justify-content: center; align-items: center; gap: 8px;">
+              ${actionsHtml}
+              <button class="btn-icon delete btn-delete-record" data-id="${p.id}" data-type="pedido" title="Eliminar registro">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    bindDeleteButtons();
+  }
+
   // ============================================
   // 5. CAMBIOS DE ESTADO DIRECTOS EN TABLAS
   // ============================================
@@ -398,6 +514,50 @@ document.addEventListener('DOMContentLoaded', () => {
       db.collection("techparts_consultas").doc(id).update({ status: 'Pendiente' })
         .then(() => showToast('Consulta marcada como Pendiente', 'success'))
         .catch(err => console.error('Error:', err));
+    }
+  };
+
+  // ─── CAMBIO DE ESTADO DE PEDIDOS ──────────────────────────────────────────
+  window.changePedidoStatus = async (id, newStatus) => {
+    if (typeof db === 'undefined') return;
+
+    try {
+      if (newStatus === 'Vendido') {
+        const doc = await db.collection("techparts_pedidos").doc(id).get();
+        if (!doc.exists) {
+          showToast("Error: El pedido no existe.", "error");
+          return;
+        }
+        const orderData = doc.data();
+        if (orderData.status === 'Vendido') {
+          showToast("Este pedido ya fue marcado como vendido.", "info");
+          return;
+        }
+
+        const items = orderData.items || [];
+        const updatePromises = items.map(async (item) => {
+          if (!item.id) return;
+          const prodDoc = await db.collection("techparts_productos").doc(String(item.id)).get();
+          if (prodDoc.exists) {
+            const prodData = prodDoc.data();
+            const currentStock = typeof prodData.stock === 'boolean' ? (prodData.stock ? 10 : 0) : (parseInt(prodData.stock) || 0);
+            const newStock = Math.max(0, currentStock - (parseInt(item.qty) || 0));
+            return db.collection("techparts_productos").doc(String(item.id)).update({
+              stock: newStock
+            });
+          }
+        });
+        await Promise.all(updatePromises);
+      }
+
+      await db.collection("techparts_pedidos").doc(id).update({
+        status: newStatus
+      });
+
+      showToast(`Pedido actualizado a ${newStatus} con éxito.`, "success");
+    } catch (error) {
+      console.error("Error al cambiar estado del pedido:", error);
+      showToast("Hubo un error al actualizar el pedido.", "error");
     }
   };
 
@@ -568,6 +728,9 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (type === "producto") {
       collectionName = "techparts_productos";
       typeLabel = "Producto";
+    } else if (type === "pedido") {
+      collectionName = "techparts_pedidos";
+      typeLabel = "Pedido";
     }
 
     db.collection(collectionName).doc(id).delete()
