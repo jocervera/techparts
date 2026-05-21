@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const passwordInput = document.getElementById('admin-password');
   const loginError = document.getElementById('login-error');
 
-  const ADMIN_PASSWORD = "techparts2026"; // Contraseña por defecto
+  const ADMIN_PASSWORD = "fabitech2026"; // Contraseña por defecto
 
   const checkSession = () => {
     if (sessionStorage.getItem('techparts_admin_auth') === 'true') {
