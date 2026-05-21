@@ -22,10 +22,19 @@ const Cart = (() => {
   }
 
   function add(product) {
+    const stockCount = typeof product.stock === 'boolean' ? (product.stock ? 10 : 0) : (parseInt(product.stock) || 0);
     const existing = items.find(i => i.id === product.id);
     if (existing) {
+      if (existing.qty >= stockCount) {
+        showToast(`❌ Límite de stock alcanzado (${stockCount})`);
+        return;
+      }
       existing.qty += 1;
     } else {
+      if (stockCount < 1) {
+        showToast(`❌ Producto sin stock`);
+        return;
+      }
       items.push({ ...product, qty: 1 });
     }
     save();
@@ -44,6 +53,13 @@ const Cart = (() => {
   function changeQty(id, delta) {
     const item = items.find(i => i.id === id);
     if (!item) return;
+    
+    const stockCount = typeof item.stock === 'boolean' ? (item.stock ? 10 : 0) : (parseInt(item.stock) || 0);
+    if (delta > 0 && item.qty >= stockCount) {
+      showToast(`❌ Solo hay ${stockCount} unidades disponibles`);
+      return;
+    }
+
     item.qty += delta;
     if (item.qty <= 0) {
       remove(id);
@@ -86,7 +102,9 @@ const Cart = (() => {
 
     document.getElementById('cart-footer').style.display = 'block';
 
-    body.innerHTML = `<div class="cart-items">${items.map(item => `
+    body.innerHTML = `<div class="cart-items">${items.map(item => {
+      const stockCount = typeof item.stock === 'boolean' ? (item.stock ? 10 : 0) : (parseInt(item.stock) || 0);
+      return `
       <div class="cart-item" data-id="${item.id}">
         <img class="cart-item-img" src="${item.image}" alt="${item.name}" onerror="this.src='assets/placeholder.jpg'">
         <div class="cart-item-info">
@@ -95,11 +113,11 @@ const Cart = (() => {
           <div class="cart-item-controls">
             <button class="qty-btn" onclick="Cart.changeQty(${item.id}, -1)">−</button>
             <span class="qty-val">${item.qty}</span>
-            <button class="qty-btn" onclick="Cart.changeQty(${item.id}, 1)">+</button>
+            <button class="qty-btn" onclick="Cart.changeQty(${item.id}, 1)" ${item.qty >= stockCount ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''}>+</button>
             <button class="remove-item-btn" onclick="Cart.remove(${item.id})" title="Eliminar">🗑️</button>
           </div>
         </div>
-      </div>`).join('')}
+      </div>`}).join('')}
     </div>`;
 
     const totalEl = document.getElementById('cart-total-val');
