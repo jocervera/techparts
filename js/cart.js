@@ -148,7 +148,7 @@ const Cart = (() => {
     if (checkoutBtn) {
       checkoutBtn.addEventListener('click', () => {
         if (items.length === 0) return;
-        const WHATSAPP_NUMBER = '5491112345678'; // ← Cambiar por número real
+        const WHATSAPP_NUMBER = '5491138621658'; // ← Cambiar por número real
         const msg = buildWhatsAppMessage();
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
       });
