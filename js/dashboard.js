@@ -261,6 +261,22 @@ document.addEventListener('DOMContentLoaded', () => {
           renderProductos(productos);
         }, (error) => {
           console.error("Error al escuchar productos:", error);
+          const tableBody = document.getElementById('products-table-body');
+          if (tableBody) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="6" class="empty-state" style="color: var(--accent-red);">
+                  <div style="font-size: 2rem; margin-bottom: 10px;">⚠️</div>
+                  <strong>Error de conexión con la base de datos (Firebase)</strong><br><br>
+                  El catálogo no puede cargar. Esto suele ocurrir porque <strong>tus permisos de prueba en Firebase expiraron</strong> (duran 30 días por defecto) o hay un error de reglas.<br>
+                  Por favor, ingresá a la consola de Firebase, andá a Firestore Database > Rules y cambiá las reglas a:<br>
+                  <code style="display:block; margin: 10px auto; max-width: 400px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; text-align: left; color: #fff;">
+                    allow read, write: if true;
+                  </code>
+                </td>
+              </tr>
+            `;
+          }
         });
     }
   }
@@ -540,7 +556,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (error) {
       console.error("Error al guardar producto:", error);
-      alert("Error al guardar: " + error.message);
+      let errorMsg = error.message;
+      if (errorMsg.toLowerCase().includes("permission") || errorMsg.toLowerCase().includes("missing or insufficient")) {
+        errorMsg = "Permisos denegados en Firebase. Tus reglas de Firestore probablemente expiraron. Revisá la pestaña de Productos para ver las instrucciones de cómo arreglarlo.";
+      }
+      alert("Error al guardar: " + errorMsg);
     } finally {
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
