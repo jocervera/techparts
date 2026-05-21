@@ -304,10 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     tableBody.innerHTML = productos.map(p => {
-      const inStock = p.stock !== false;
-      const stockBadge = inStock 
-        ? `<span style="color:var(--accent-green); font-weight:600;">✅ En stock</span>` 
-        : `<span style="color:var(--accent-red); font-weight:600;">❌ Sin stock</span>`;
+      const stockCount = typeof p.stock === 'boolean' ? (p.stock ? 10 : 0) : (parseInt(p.stock) || 0);
+      const stockBadge = stockCount > 0
+        ? `<div style="display:flex; align-items:center; gap:8px;">
+             <button class="btn-icon" style="width:24px; height:24px; font-size:12px; background:rgba(255,255,255,0.1); padding:0;" onclick="updateProductStock('${p.id}', ${Math.max(0, stockCount - 1)})" title="Restar stock">-</button>
+             <span style="color:var(--accent-green); font-weight:700; width:30px; text-align:center;">${stockCount}</span>
+             <button class="btn-icon" style="width:24px; height:24px; font-size:12px; background:rgba(255,255,255,0.1); padding:0;" onclick="updateProductStock('${p.id}', ${stockCount + 1})" title="Sumar stock">+</button>
+           </div>`
+        : `<div style="display:flex; align-items:center; gap:8px;">
+             <span style="color:var(--accent-red); font-weight:600; width:30px; text-align:center;">0</span>
+             <button class="btn-icon" style="width:24px; height:24px; font-size:12px; background:rgba(255,255,255,0.1); padding:0;" onclick="updateProductStock('${p.id}', 1)" title="Sumar stock">+</button>
+           </div>`;
 
       const categoryLabel = {
         'modulos': '📱 Módulos',
@@ -380,6 +387,16 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(() => showToast(`Consulta marcada como ${newStatus}`, "success"))
     .catch(err => console.error("Error al actualizar consulta:", err));
+  };
+
+  window.updateProductStock = (id, newStock) => {
+    if (typeof db === 'undefined') return;
+    db.collection("techparts_productos").doc(id).update({
+      stock: newStock
+    }).catch(err => {
+      console.error("Error al actualizar stock:", err);
+      showToast("Error al actualizar stock", "error");
+    });
   };
 
   window.contactCustomerPhone = (phone, name, service) => {
@@ -510,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const brand = document.getElementById('product-brand').value;
     const badge = document.getElementById('product-badge').value;
     const description = document.getElementById('product-desc').value;
-    const stock = document.getElementById('product-stock').checked;
+    const stock = parseInt(document.getElementById('product-stock-count').value) || 0;
     let image = document.getElementById('product-image').value;
     const imageFile = document.getElementById('product-image-file').files[0];
 
@@ -530,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
         brand,
         badge: badge || "",
         description: description || "",
-        stock: stock !== false,
+        stock: stock,
         image
       };
 
@@ -583,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('product-desc').value = data.description || '';
         document.getElementById('product-image').value = data.image.startsWith('data:image') ? '' : data.image; // Evitar pegar base64 largo en el input
         document.getElementById('product-image-file').value = '';
-        document.getElementById('product-stock').checked = data.stock !== false;
+        document.getElementById('product-stock-count').value = typeof data.stock === 'boolean' ? (data.stock ? 10 : 0) : (data.stock || 0);
 
         formProductTitle.textContent = "Editar Producto";
         
