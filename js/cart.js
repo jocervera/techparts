@@ -1,5 +1,5 @@
 // ============================================
-// TECHPARTS — CART MODULE
+// FABITECH SOLUTIONS — CART MODULE
 // ============================================
 
 const Cart = (() => {
@@ -108,7 +108,7 @@ const Cart = (() => {
 
   function buildWhatsAppMessage() {
     if (items.length === 0) return '';
-    let msg = '🛒 *Pedido TechParts*\n\n';
+    let msg = '🛒 *Pedido FabiTech Solutions*\n\n';
     items.forEach(item => {
       msg += `• ${item.name} x${item.qty} = $${formatPrice(item.price * item.qty)}\n`;
     });
