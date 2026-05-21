@@ -14,7 +14,7 @@ if (typeof firebase !== 'undefined') {
     firebase.initializeApp(firebaseConfig);
     // Inicializar Cloud Firestore y obtener una referencia al servicio
     window.db = firebase.firestore();
-    console.log("⚡ Firebase inicializado correctamente en TechParts.");
+    console.log("⚡ Firebase inicializado correctamente en FabiTech Solutions.");
 } else {
     console.error("❌ Firebase SDK no está cargado. Asegúrate de incluir los scripts de Firebase Compat.");
 }
