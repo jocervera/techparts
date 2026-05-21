@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td>
             <div class="action-group" style="justify-content: center;">
-              <a class="btn-icon" href="mailto:${c.email}?subject=Respuesta TechParts: ${encodeURIComponent(c.subject)}" style="text-decoration:none;" title="Responder por Email">✉️</a>
+              <a class="btn-icon" href="mailto:${c.email}?subject=Respuesta FabiTech Solutions: ${encodeURIComponent(c.subject)}" style="text-decoration:none;" title="Responder por Email">✉️</a>
               <button class="btn-icon delete btn-delete-record" data-id="${c.id}" data-type="consulta" title="Eliminar registro">🗑️</button>
             </div>
           </td>
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.contactCustomerPhone = (phone, name, service) => {
     const cleanPhone = phone.replace(/[^0-9]/g, '');
-    const message = encodeURIComponent(`Hola ${name}! Te contactamos de TechParts ⚡ por tu solicitud de turno de reparación para: ${service}.`);
+    const message = encodeURIComponent(`Hola ${name}! Te contactamos de FabiTech Solutions ⚡ por tu solicitud de turno de reparación para: ${service}.`);
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
   };
 
