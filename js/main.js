@@ -1,5 +1,5 @@
 // ============================================
-// TECHPARTS — MAIN APP LOGIC
+// FABITECH SOLUTIONS — MAIN APP LOGIC
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
