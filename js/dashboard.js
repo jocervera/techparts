@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function initDashboard() {
     initTabs();
     initFormOverlayControls();
-    
+    initVentaModal();
+
     // Iniciar escuchas en tiempo real
     startTurnosListener();
     startConsultasListener();
@@ -209,7 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         hour: '2-digit', minute: '2-digit'
       });
 
-      const statusClass = `status-${c.status || 'Pendiente'}`;
+      const currentStatus = c.status || 'Pendiente';
+      const statusClass = `status-${currentStatus}`;
+      const statusIcon = currentStatus === 'Vendido' ? '💜 ' : '';
 
       return `
         <tr data-id="${c.id}">
@@ -228,9 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <td style="font-size: 0.85rem; color: var(--text-muted);">${formattedDate}</td>
           <td>
             <span class="status-badge ${statusClass}" 
-                  onclick="changeConsultaStatus('${c.id}', '${c.status || 'Pendiente'}')"
-                  title="Haz clic para marcar como respondido/pendiente">
-              ${c.status || 'Pendiente'}
+                  onclick="changeConsultaStatus('${c.id}', '${currentStatus}')"
+                  title="Haz clic para cambiar estado">
+              ${statusIcon}${currentStatus}
             </span>
           </td>
           <td>
@@ -377,17 +380,131 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => console.error("Error al actualizar turno:", err));
   };
 
+  // ─── CAMBIO DE ESTADO DE CONSULTAS ────────────────────────────────────────
+  // Ciclo: Pendiente → Respondido → Vendido → Pendiente
   window.changeConsultaStatus = (id, currentStatus) => {
     if (typeof db === 'undefined') return;
 
-    const newStatus = currentStatus === 'Pendiente' ? 'Respondido' : 'Pendiente';
-
-    db.collection("techparts_consultas").doc(id).update({
-      status: newStatus
-    })
-    .then(() => showToast(`Consulta marcada como ${newStatus}`, "success"))
-    .catch(err => console.error("Error al actualizar consulta:", err));
+    if (currentStatus === 'Pendiente') {
+      // Pasar a Respondido directamente
+      db.collection("techparts_consultas").doc(id).update({ status: 'Respondido' })
+        .then(() => showToast('Consulta marcada como Respondido', 'success'))
+        .catch(err => console.error('Error:', err));
+    } else if (currentStatus === 'Respondido') {
+      // Mostrar modal de venta antes de marcar como Vendido
+      abrirModalVenta(id);
+    } else {
+      // Vendido → volver a Pendiente
+      db.collection("techparts_consultas").doc(id).update({ status: 'Pendiente' })
+        .then(() => showToast('Consulta marcada como Pendiente', 'success'))
+        .catch(err => console.error('Error:', err));
+    }
   };
+
+  // ─── MODAL DE VENTA ───────────────────────────────────────────────────────
+  let _ventaConsultaId = null;
+  let _productosCache = [];
+
+  function initVentaModal() {
+    const backdrop = document.getElementById('venta-backdrop');
+    const btnCancelar = document.getElementById('btn-cancelar-venta');
+    const btnConfirmar = document.getElementById('btn-confirmar-venta');
+    const selectProducto = document.getElementById('venta-producto');
+    const stockInfo = document.getElementById('venta-stock-info');
+
+    if (btnCancelar) btnCancelar.addEventListener('click', cerrarModalVenta);
+    if (backdrop) backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) cerrarModalVenta();
+    });
+
+    // Mostrar stock disponible al cambiar producto
+    if (selectProducto) {
+      selectProducto.addEventListener('change', () => {
+        const selId = selectProducto.value;
+        if (!selId) { stockInfo.textContent = ''; return; }
+        const prod = _productosCache.find(p => p.id == selId);
+        if (prod) {
+          const s = typeof prod.stock === 'boolean' ? (prod.stock ? 10 : 0) : (parseInt(prod.stock) || 0);
+          stockInfo.textContent = `Stock actual: ${s} unidad${s !== 1 ? 'es' : ''}`;
+          stockInfo.style.color = s > 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        }
+      });
+    }
+
+    if (btnConfirmar) {
+      btnConfirmar.addEventListener('click', async () => {
+        const selectEl = document.getElementById('venta-producto');
+        const cantidadEl = document.getElementById('venta-cantidad');
+        const prodId = selectEl.value;
+        const cantidad = parseInt(cantidadEl.value) || 0;
+
+        if (!prodId) { alert('Por favor seleccioná un producto.'); return; }
+        if (cantidad < 1) { alert('La cantidad debe ser al menos 1.'); return; }
+
+        const prod = _productosCache.find(p => p.id == prodId);
+        if (!prod) { alert('Producto no encontrado.'); return; }
+
+        const stockActual = typeof prod.stock === 'boolean' ? (prod.stock ? 10 : 0) : (parseInt(prod.stock) || 0);
+        const nuevoStock = Math.max(0, stockActual - cantidad);
+
+        btnConfirmar.textContent = 'Guardando...';
+        btnConfirmar.disabled = true;
+
+        try {
+          // 1. Descontar stock del producto
+          await db.collection("techparts_productos").doc(prodId).update({ stock: nuevoStock });
+          // 2. Marcar consulta como Vendido
+          await db.collection("techparts_consultas").doc(_ventaConsultaId).update({ status: 'Vendido' });
+
+          showToast(`✅ Venta registrada. Stock de "${prod.name}" actualizado a ${nuevoStock} unidades.`, 'success');
+          cerrarModalVenta();
+        } catch (err) {
+          console.error('Error al registrar venta:', err);
+          alert('Error al registrar la venta: ' + err.message);
+        } finally {
+          btnConfirmar.textContent = '✓ Confirmar Venta';
+          btnConfirmar.disabled = false;
+        }
+      });
+    }
+  }
+
+  function abrirModalVenta(consultaId) {
+    _ventaConsultaId = consultaId;
+    const backdrop = document.getElementById('venta-backdrop');
+    const selectEl = document.getElementById('venta-producto');
+    const stockInfo = document.getElementById('venta-stock-info');
+    const cantidadEl = document.getElementById('venta-cantidad');
+
+    // Poblar el select con los productos actuales
+    if (typeof db !== 'undefined') {
+      db.collection("techparts_productos").get().then(snapshot => {
+        _productosCache = [];
+        snapshot.forEach(doc => _productosCache.push({ ...doc.data(), id: doc.id }));
+        _productosCache.sort((a, b) => a.name.localeCompare(b.name));
+
+        selectEl.innerHTML = '<option value="">-- Seleccionar producto --</option>' +
+          _productosCache.map(p => {
+            const s = typeof p.stock === 'boolean' ? (p.stock ? 10 : 0) : (parseInt(p.stock) || 0);
+            return `<option value="${p.id}">${p.name} (Stock: ${s})</option>`;
+          }).join('');
+
+        if (cantidadEl) cantidadEl.value = 1;
+        if (stockInfo) stockInfo.textContent = '';
+        backdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }).catch(err => {
+        alert('Error al cargar productos: ' + err.message);
+      });
+    }
+  }
+
+  function cerrarModalVenta() {
+    const backdrop = document.getElementById('venta-backdrop');
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    _ventaConsultaId = null;
+  }
 
   window.updateProductStock = (id, newStock) => {
     if (typeof db === 'undefined') return;
